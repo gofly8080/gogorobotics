@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="option">
+	<select id="getList" parameterType="int" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+			  B.seq
+			, A.seq AS optionSeq
+			, A.item_seq AS itemSeq
+			, A.option_name AS optionName
+			, A.show_flag AS showFlag
+			, A.mod_date AS modDate
+			, A.reg_date AS regDate
+			, B.option_seq AS optionSeq
+			, B.value_name AS valueName
+			, B.stock_cnt AS stockCount
+			, B.stock_flag AS stockFlag
+			, B.option_price AS optionPrice
+			, B.sale_price AS salePrice
+			, B.sale_period AS salePeriod
+			, B.seller_seq AS sellerSeq
+			, B.free_deli AS freeDeli
+			, B.event_added AS eventAdded
+			, B.sale_percent AS salePercent
+			, B.sell_price AS sellPrice
+			, B.org_price AS originalPrice
+		FROM sm_item_option A
+		INNER JOIN sm_item_option_value B
+		ON A.seq=B.option_seq
+		WHERE 1=1
+		AND item_seq=#{value}
+		AND stock_flag='Y'
+		AND value_name = (
+		  SELECT i.name FROM sm_user i WHERE  i.name = B.value_name AND i.status_code = 'Y'
+		)
+		ORDER BY A.seq ASC, B.seq ASC
+	</select>
+
+	<select id="getOptionList" parameterType="int" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+			  seq
+			, item_seq AS itemSeq
+			, option_name AS optionName
+			, show_flag AS showFlag
+			, mod_date AS modDate
+			, reg_date AS regDate
+		FROM sm_item_option
+		WHERE 1=1
+		AND item_seq=#{value}
+		ORDER BY seq ASC
+	</select>
+
+	<select id="getValueList" parameterType="int" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+			  seq
+			, option_seq AS optionSeq
+			, value_name AS valueName
+			, stock_cnt AS stockCount
+			, stock_flag AS stockFlag
+			, option_price AS optionPrice
+			, sale_price AS salePrice
+			, sale_period AS salePeriod
+			, seller_seq AS sellerSeq
+			, free_deli AS freeDeli
+			, event_added AS eventAdded
+			, mod_date AS modDate
+			, reg_date AS regDate
+			, sale_percent AS salePercent
+			, sell_price AS sellPrice
+			, org_price AS originalPrice
+		FROM sm_item_option_value
+		WHERE 1=1
+		AND option_seq=#{value}
+		AND stock_flag='Y'
+		ORDER BY sellPrice ASC
+	</select>
+
+	<select id="getValueListForSeller" parameterType="Map" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+		  seq
+		, option_seq AS optionSeq
+		, value_name AS valueName
+		, stock_cnt AS stockCount
+		, stock_flag AS stockFlag
+		, option_price AS optionPrice
+		, sale_price AS salePrice
+		, sale_period AS salePeriod
+		, seller_seq AS sellerSeq
+		, free_deli AS freeDeli
+		, event_added AS eventAdded
+		, mod_date AS modDate
+		, reg_date AS regDate
+		, sell_price AS sellPrice
+		, sale_percent AS salePercent
+		, org_price AS originalPrice
+		FROM sm_item_option_value
+		WHERE 1=1
+		AND option_seq=#{seq}
+		AND value_name=#{loginName}
+		ORDER BY seq ASC
+	</select>
+
+	<select id="getVo" parameterType="int" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+			  seq
+			, item_seq AS itemSeq
+			, option_name AS optionName
+			, show_flag AS showFlag
+			, mod_date AS modDate
+			, reg_date AS regDate
+		FROM sm_item_option
+		WHERE 1=1
+		AND seq=#{value}
+	</select>
+
+	<select id="getSeq" parameterType="int" resultType="int">
+		SELECT
+			seq
+		FROM
+			sm_item_option
+		WHERE 1=1
+		AND item_seq=#{value}
+	</select>
+
+	<select id="getValueVo" parameterType="int" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+			  A.seq
+			, A.option_seq AS optionSeq
+			, A.value_name AS valueName
+			, A.stock_cnt AS stockCount
+			, A.option_price AS optionPrice
+			, A.sale_price AS salePrice
+			, A.sale_period AS salePeriod
+			, A.stock_flag AS stockFlag
+			, A.free_deli AS freeDeli
+			, A.event_added AS eventAdded
+			, B.item_seq AS itemSeq
+			, B.show_flag AS showFlag
+			, A.seller_seq AS sellerSeq
+			, A.sale_percent AS salePercent
+			, A.sell_price AS sellPrice
+			, A.org_price AS originalPrice
+		FROM sm_item_option_value A
+		INNER JOIN sm_item_option B
+			ON A.option_seq=B.seq
+		WHERE 1=1
+		AND A.seq=#{value}
+	</select>
+
+	<insert id="insertVo" parameterType="com.smpro.vo.ItemOptionVo" useGeneratedKeys="true" keyProperty="seq">
+		INSERT INTO sm_item_option (
+			item_seq,
+			option_name,
+			show_flag,
+			mod_date,
+			reg_date
+		) VALUES (
+			#{itemSeq},
+			#{optionName},
+			#{showFlag},
+			NOW(),
+			NOW()
+		)
+	</insert>
+
+	<insert id="insertValueVo" parameterType="com.smpro.vo.ItemOptionVo">
+		INSERT INTO sm_item_option_value (
+			option_seq,
+			value_name,
+			stock_cnt,
+			stock_flag,
+			org_price,
+			option_price,
+			sale_price,
+			mod_date,
+			reg_date,
+			seller_seq,
+			free_deli,
+			event_added,
+			sell_price,
+			sale_percent
+		) VALUES (
+			#{optionSeq},
+			#{valueName},
+			#{stockCount},
+			#{stockFlag},
+			#{originalPrice},
+			#{optionPrice},
+			#{salePrice},
+			NOW(),
+			NOW(),
+			#{sellerSeq},
+			#{freeDeli},
+			#{eventAdded},
+			CASE
+				WHEN sale_price>0 THEN sale_price
+				ELSE option_price
+			END,
+			(100-(sell_price * 100)/option_price)
+		)
+	</insert>
+
+	<update id="updateVo" parameterType="com.smpro.vo.ItemOptionVo">
+		UPDATE sm_item_option SET
+			  option_name=#{optionName}
+			, show_flag=#{showFlag}
+			, mod_date=NOW()
+		WHERE 1=1
+		AND seq=#{seq}
+	</update>
+
+	<update id="updateValueVo" parameterType="com.smpro.vo.ItemOptionVo">
+		UPDATE sm_item_option_value SET
+			  value_name=#{valueName}
+			, stock_cnt=#{stockCount}
+			, stock_flag=#{stockFlag}
+			, option_price=#{optionPrice}
+			, sale_price=#{salePrice}
+			, seller_seq=#{sellerSeq}
+			, free_deli=#{freeDeli}
+			, event_added=#{eventAdded}
+			, org_price=#{originalPrice}
+			, sell_price =
+				CASE
+					WHEN sale_price>0 THEN sale_price
+					ELSE option_price
+				END
+			, sale_percent = (100-(sell_price * 100)/option_price)
+			, mod_date=NOW()
+		WHERE 1=1
+		AND seq=#{seq}
+	</update>
+
+	<update id="popStock" parameterType="com.smpro.vo.ItemOptionVo">
+		UPDATE sm_item_option_value SET
+			stock_cnt=stock_cnt-#{count}
+		WHERE
+			seq=#{seq}
+	</update>
+	<select id="getStockFlag" parameterType="com.smpro.vo.ItemVo" resultType="com.smpro.vo.ItemOptionVo">
+		SELECT
+			v.seq
+		FROM
+			sm_item_option_value v LEFT OUTER JOIN
+			sm_item_option o ON (v.option_seq=o.seq) LEFT OUTER JOIN
+			sm_item i ON (o.item_seq=i.seq)
+		WHERE
+			<![CDATA[INSTR(#{optionValues},value_name) > 0]]>
+			AND i.seq=#{itemSeq}
+		AND ROWNUM = 1
+	</select>
+
+	<delete id="deleteVo" parameterType="int">
+		DELETE FROM sm_item_option
+		WHERE seq=#{value}
+	</delete>
+
+	<delete id="deleteValueVo" parameterType="int">
+		DELETE FROM sm_item_option_value
+		WHERE seq=#{value}
+	</delete>
+</mapper>
